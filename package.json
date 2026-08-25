@@ -1,0 +1,46 @@
+{
+  "name": "dsh-deepseek-billing",
+  "version": "0.2.0",
+  "description": "DSH Web GUI 计费插件：在会话标题栏显示当前对话 token、费用与 DeepSeek API 余额。",
+  "type": "module",
+  "main": "lib/index.js",
+  "files": [
+    "lib",
+    "scripts",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "check": "node --check lib/index.js && node --check lib/client.js && node --check lib/pricing.js && node --check scripts/install.js",
+    "install:local": "node scripts/install.js --from . --force"
+  },
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
+    }
+  },
+  "keywords": [
+    "dsh",
+    "deepseek",
+    "deepseek-harness",
+    "plugin",
+    "billing",
+    "token",
+    "cost",
+    "balance",
+    "web"
+  ],
+  "license": "MIT"
+}

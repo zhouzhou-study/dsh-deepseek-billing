@@ -1,0 +1,5 @@
+# dsh-deepseek-billing — DeepSeek Harness Web GUI 计费插件。
+# 宿主侧注册余额/会话费用路由；浏览器侧在右下角 shell.overlay 显示悬浮卡片。
+- insert:
+    - id: dsh-deepseek-billing
+      name: dsh-deepseek-billing
