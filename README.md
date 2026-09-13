@@ -113,6 +113,16 @@ dsh plugin --profile web add ./dsh-deepseek-billing
 
 ---
 
+## 自定义样式
+
+面板里与「历史用量」相关的节点都带 `data-dsh-billing-section="usage"` 标记，想隐藏或改写这部分时用自己的 CSS 覆盖即可（不必改插件代码）：
+
+```css
+[data-dsh-billing-section="usage"] { display: none !important; }
+```
+
+---
+
 ## 文件结构
 
 ```text
@@ -143,6 +153,8 @@ dsh-deepseek-billing/
 ## 更新日志
 
 完整记录见 [CHANGELOG.md](./CHANGELOG.md)。
+
+**0.3.1（2026-09-13）**：面板的用量区块统一带上 `data-dsh-billing-section="usage"` 标记，想隐藏这部分用一段自定义 CSS 即可（见「自定义样式」）；移除客户端内部写死的显示开关。
 
 **0.3.0（2026-09-13）**：新增**价格设置面板**（界面上维护自己的高峰价/闲时价与生效时间，数据存 `$DSH_HOME/billing-prices.json`；只影响 CNY、只对生效时间之后的请求生效、官方价表兜底）；修正**推理 token 重复计费**。
 
