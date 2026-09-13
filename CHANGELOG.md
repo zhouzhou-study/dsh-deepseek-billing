@@ -4,6 +4,23 @@
 
 ---
 
+## [0.3.1] — 2026-09-13
+
+### 变更：面板区块带上 `data-dsh-billing-section` 标记
+
+- 面板中与「历史用量」相关的节点（用量状态行、按价格档位的用量角标）统一带上 `data-dsh-billing-section="usage"`。想隐藏这部分时，用自己的 CSS 覆盖即可，不必改插件代码：
+  ```css
+  [data-dsh-billing-section="usage"] { display: none !important; }
+  ```
+- 移除客户端内部写死的显示开关：用量统计现在始终按设计显示，**可见性交给使用者的样式控制**。
+
+### 校验
+
+- `node --check` 通过（`lib/index.js`、`lib/client.js`、`lib/pricing.js`、`lib/user-pricing.js`、`scripts/install.js`）。
+- 价格回归测试 **8/8**；价格设置测试 **11/11**。
+
+---
+
 ## [0.3.0] — 2026-09-13
 
 ### 新功能：价格设置面板（自定义价格）
