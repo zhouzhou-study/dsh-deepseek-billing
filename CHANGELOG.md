@@ -21,7 +21,7 @@
 
 ### 修复：推理 token 不再重复计费
 
-官方的 `completion_tokens` 已经包含 `reasoning_tokens`（DSH 上报的 `outputTokens` 即 `completion_tokens`），此前又按输出价加了一遍，导致“想得多”的会话费用**虚高 40% 以上**。现已修正：reasoning token 仍在明细里展示（它是输出的构成），但不再单独计价。
+官方的 `completion_tokens` 已经包含 `reasoning_tokens`（DSH 上报的 `outputTokens` 即 `completion_tokens`），此前又按输出价加了一遍，属于**重复计入**，会让输出偏多的会话费用偏高。现已修正：reasoning token 仍在明细里展示（它是输出的构成），但不再单独计价。
 
 ### 兼容性
 
