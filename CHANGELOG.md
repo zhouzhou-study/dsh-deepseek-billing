@@ -4,44 +4,6 @@
 
 ---
 
-## [0.4.0] — 2026-09-13
-
-### 移除：「历史用量」功能
-
-面板里那块「你的历史用量：共 N 次调用 · ¥X」，以及每个价格档位旁边的「你在这档用了 X 次 · ¥Y」，整块移除。连带删除：
-
-- 后台扫描**全部**会话日志、按当时生效政策归类的代码（`scanUsageByPolicy` / `refreshUsage` / 结果缓存）；
-- 本地接口 `GET /api/dsh-deepseek-billing/usage-by-policy`；
-- 客户端的取数、4 秒轮询与渲染代码。
-
-**为什么删**：这块统计只能看到 DSH 自己的本地会话（其他工具、其他机器都不在内），也无法与 DeepSeek 平台账单对齐——留着既容易误导，又要为它多读一堆本地会话日志。面板现在就是三块：**当前生效价 / 我的调价记录 / 官方历史价**。
-
-> 0.3.1 引入的 `data-dsh-billing-section="usage"` 标记随功能一并移除（已没有可标记的区块）。
-
-### 校验
-
-- `node --check` 通过（5 个源文件）；价格回归 **8/8**；价格设置 **11/11**。
-- 残留引用扫描：`usage-by-policy`、`usageBucket`、`scanUsageByPolicy`、`refreshUsage`、`sessionsRoot`、`历史用量` 等关键字 **0 命中**。
-
----
-
-## [0.3.1] — 2026-09-13
-
-### 变更：面板区块带上 `data-dsh-billing-section` 标记
-
-- 面板中与「历史用量」相关的节点（用量状态行、按价格档位的用量角标）统一带上 `data-dsh-billing-section="usage"`。想隐藏这部分时，用自己的 CSS 覆盖即可，不必改插件代码：
-  ```css
-  [data-dsh-billing-section="usage"] { display: none !important; }
-  ```
-- 移除客户端内部写死的显示开关：用量统计现在始终按设计显示，**可见性交给使用者的样式控制**。
-
-### 校验
-
-- `node --check` 通过（`lib/index.js`、`lib/client.js`、`lib/pricing.js`、`lib/user-pricing.js`、`scripts/install.js`）。
-- 价格回归测试 **8/8**；价格设置测试 **11/11**。
-
----
-
 ## [0.3.0] — 2026-09-13
 
 ### 新功能：价格设置面板（自定义价格）
@@ -54,7 +16,7 @@
 - **只对生效时间之后生效**：改价不改写更早的账，历史消息仍按当时的政策计价、账单可复现。
 - 官方价表（`pricing.js`）保持不变，作为兜底；删除自定义条目即回退官方价。
 - 面板分页：「当前生效价」/「我的调价记录」/「官方历史价（折叠）」。
-- 新增两个本地只读接口：`GET|POST /api/dsh-deepseek-billing/pricing`（读写自定义价）、`GET /api/dsh-deepseek-billing/usage-by-policy`（按价格档位统计历史用量，后台扫描 + 10 分钟缓存，不阻塞请求）。
+- 新增本地接口：`GET|POST /api/dsh-deepseek-billing/pricing`（读写自定义价）。
 - 写盘为**原子写**（先写 `.tmp` 再改名）；文件损坏、条目不合法只会被拒绝或跳过并返回 `errors`，**不会让计费接口 500**。
 
 ### 修复：推理 token 不再重复计费
