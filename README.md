@@ -37,7 +37,6 @@
   - 已收录至 **2026-09-10 V4.1-Flash 调价**（flash 系列降价、新增模型名 `deepseek-flash`；`deepseek-v4-pro` 计费不变）
 - ✅ **会话日志回放**：读 DSH 持久化的会话日志重新计价，**重启前产生的费用也算进去**，不会漏。
 - ✅ **价格设置（可选）**：在面板里维护自己的价格表——按模型（或 `*` 表示所有模型）填**高峰价 / 闲时价**与**生效时间**。自定义价只影响 CNY（USD 仍用官方同刻价），且**只对自己的生效时间之后的请求生效**：改价不改写更早的账，历史账单依旧可复现。官方价表保留为兜底，删掉自定义条目即回退官方价。
-- ✅ **按价格档位看用量**：面板里会把你在 DSH 会话里的历史调用按**当时生效的价格政策**归类，看每一档实际花了多少（后台扫描 + 缓存，不阻塞界面）。
 
 ---
 
@@ -113,16 +112,6 @@ dsh plugin --profile web add ./dsh-deepseek-billing
 
 ---
 
-## 自定义样式
-
-面板里与「历史用量」相关的节点都带 `data-dsh-billing-section="usage"` 标记，想隐藏或改写这部分时用自己的 CSS 覆盖即可（不必改插件代码）：
-
-```css
-[data-dsh-billing-section="usage"] { display: none !important; }
-```
-
----
-
 ## 文件结构
 
 ```text
@@ -144,7 +133,7 @@ dsh-deepseek-billing/
 
 ## 安全性
 
-- 浏览器只访问本地路由 `/api/dsh-deepseek-billing/balance`、`/api/dsh-deepseek-billing/session-cost`、`/api/dsh-deepseek-billing/requests`，**API Key 不会出现在前端**。
+- 浏览器只访问本地路由 `/api/dsh-deepseek-billing/balance`、`/api/dsh-deepseek-billing/session-cost`、`/api/dsh-deepseek-billing/requests`、`/api/dsh-deepseek-billing/pricing`，**API Key 不会出现在前端**。
 - 会话费用通过 DSH 会话日志回放计算，无需额外上传任何数据。
 - 价格设置只读写本地文件 `$DSH_HOME/billing-prices.json`（原子写），不发起任何外部请求。
 
@@ -154,7 +143,9 @@ dsh-deepseek-billing/
 
 完整记录见 [CHANGELOG.md](./CHANGELOG.md)。
 
-**0.3.1（2026-09-13）**：面板的用量区块统一带上 `data-dsh-billing-section="usage"` 标记，想隐藏这部分用一段自定义 CSS 即可（见「自定义样式」）；移除客户端内部写死的显示开关。
+**0.4.0（2026-09-13）**：**移除「历史用量」功能**——面板不再统计"你在每档价格用了多少次/花了多少"，同时删掉后台扫全部会话的代码与 `/usage-by-policy` 接口（少读一堆本地会话、少一个接口）。面板只保留：当前生效价 / 我的调价记录 / 官方历史价。
+
+**0.3.1（2026-09-13）**：面板的用量区块带上 `data-dsh-billing-section="usage"` 标记，便于自定义 CSS 定位；移除客户端内部写死的显示开关。（该功能与标记已在 **0.4.0** 一并移除。）
 
 **0.3.0（2026-09-13）**：新增**价格设置面板**（界面上维护自己的高峰价/闲时价与生效时间，数据存 `$DSH_HOME/billing-prices.json`；只影响 CNY、只对生效时间之后的请求生效、官方价表兜底）；修正**推理 token 重复计费**。
 
