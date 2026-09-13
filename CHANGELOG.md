@@ -4,6 +4,30 @@
 
 ---
 
+## [0.2.2] — 2026-09-13
+
+### 兼容性修复：适配 DSH 0.1.5（会话日志接口换代）
+
+DSH 0.1.5 起，`sessionPersistence` 换成了新的 seam 接口——`stat(id)` 取修订号、`open(id, 'read')` 拿句柄、`handle.read()` 返回**已解析的事件**；旧的 `readStoredRevision` / `readRaw` 已被移除。0.2.1 及更早版本只认旧接口，于是会在新版 DSH 上**静默降级**：余额与当轮费用照常显示，但**「重启前的历史费用回放」失效**（不崩溃，只是少算）。
+
+本次改为**双代接口自动识别**：
+
+| 运行环境 | 采用的接口 | 效果 |
+| --- | --- | --- |
+| DSH 0.1.5+ | `stat(id)` + `open(id, 'read')` → `handle.read().events` | 完整回放 |
+| DSH 0.1.0-rc.6 | `readStoredRevision(id)` + `readRaw(id)`（JSONL） | 完整回放（旧路径保留） |
+| 两者都不存在 | — | 退回内存账本（不崩溃，历史费用缺失） |
+
+- **只改服务端 `lib/index.js` 的日志读取路径**：价格表、前端界面、HTTP 接口均未变动，因此不涉及价格或界面行为变化。
+- 接口签名已对照 DSH 0.1.5-rc.2 核对：`open(id, access, options?)`、`stat(id, options?)`、`SessionHandleReadResult.events` 与本实现一致。
+
+### 校验
+
+- `node --check` 全量通过（`lib/index.js`、`lib/client.js`、`lib/pricing.js`、`scripts/install.js`）。
+- 价格回归测试 **8/8 通过**：覆盖周末全天闲时、工作日峰/谷、`deepseek-flash` 与旧名同价、`deepseek-v4-pro` 沿用 08-23 旧价、以及 2026-09-10 12:00 调价前后分界。
+
+---
+
 ## [0.2.1] — 2026-09-13
 
 ### 价格更新：内置 2026-09-10 的 V4.1-Flash 调价政策
