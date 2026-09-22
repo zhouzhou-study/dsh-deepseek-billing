@@ -70,6 +70,8 @@ check("state.now 带节假日/周末/调休判定（2026-09-13 是周日）",
   state.now.holiday === null && state.now.weekend === true && state.now.makeupWorkday === false && state.now.date === "2026-09-13",
   JSON.stringify(state.now).slice(0, 120));
 check("state.calendar 带 33 天放假日与 6 天调休", state.calendar.holidays.length === 33 && state.calendar.makeup.length === 6);
+// 9) 补表自检也随状态下发（面板靠它提醒）；2026-09-13 这天不该提醒
+check("state.coverage 存在且 9 月不提醒补表", state.coverage !== void 0 && state.coverage.stale === false, JSON.stringify(state.coverage));
 const holidayState = describePricing(emptySnapshot, Date.parse("2026-09-25T11:00:00+08:00"));
 check("中秋当天 state.now 认得出节假日并按闲时",
   holidayState.now.holiday === "中秋节" && holidayState.now.mode === "offPeak",

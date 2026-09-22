@@ -2,6 +2,7 @@
 // 运行：node test/pricing.test.mjs
 import {
   cnHolidayCalendar,
+  cnHolidayCoverage,
   cnHolidayName,
   isCnMakeupWorkday,
   localDateKey,
@@ -73,6 +74,16 @@ check(
   "元旦/春节/清明/劳动/端午 都在表里",
   ["2026-01-01", "2026-02-16", "2026-04-06", "2026-05-04", "2026-06-19"].every((day) => cal.holidays.indexOf(day) !== -1)
 );
+
+// 节假日表自检（面板据此提醒补表）。
+// ⚠️ 这几条的期望值跟着"表里最新年份"走：哪天补了 2027 年安排，就要把 2026-11 那条改成不提醒。
+check("表覆盖到本年、且没到 11 月 → 不提醒", cnHolidayCoverage(Date.parse("2026-03-01T12:00:00+08:00")).stale === false);
+check("10 月底 → 不提醒（还没到公布次年安排的月份）", cnHolidayCoverage(Date.parse("2026-10-31T12:00:00+08:00")).stale === false);
+const covNov = cnHolidayCoverage(Date.parse("2026-11-05T12:00:00+08:00"));
+check("11 月起 → 提醒补次年，文案里带年份", covNov.stale === true && covNov.missingYear === 2027 && covNov.message.indexOf("2027") >= 0, JSON.stringify({ stale: covNov.stale, missing: covNov.missingYear }));
+const covNext = cnHolidayCoverage(Date.parse("2027-01-05T12:00:00+08:00"));
+check("跨进未收录的年份 → 提醒今年缺失", covNext.stale === true && covNext.missingYear === 2027 && covNext.message.indexOf("2027") >= 0, JSON.stringify({ stale: covNext.stale, missing: covNext.missingYear }));
+check("表里有的年份不提醒（2026-09-25）", cnHolidayCoverage(Date.parse("2026-09-25T12:00:00+08:00")).stale === false);
 
 console.log(`价格回归测试：${pass} 通过 / ${fail} 失败`);
 process.exit(fail === 0 ? 0 : 1);
