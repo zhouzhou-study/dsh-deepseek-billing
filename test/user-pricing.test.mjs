@@ -70,6 +70,28 @@ check("v4-pro 未受影响（官方 4.5/0.15/13.5）",
   pro !== void 0 && pro.source === "official" && pro.cny.input === 4.5 && pro.cny.output === 13.5,
   JSON.stringify(pro));
 
+// 6b) 峰谷口径：中国法定节假日全天按闲时（官方 2026-09-19《API 峰谷时间说明》）
+// 自定义价与官方价必须同一套口径，否则"有没有自定义价"会算出两种价。
+check("config 默认就开「法定节假日全天闲时」", empty.config.holidayOffPeak === true, JSON.stringify(empty.config));
+const holidayAt = Date.parse("2026-09-25T11:00:00+08:00"); // 中秋假期里的周五上午，平时算高峰
+const stateHoliday = describePricing(readSnapshot({ force: true }), holidayAt);
+const rowHoliday = stateHoliday.now.rows["deepseek-flash"];
+check("节假日里取闲时自定义价 0.5/0.01/2（不是高峰价 1.5/0.03/6）",
+  stateHoliday.now.holiday === "中秋节" && stateHoliday.now.mode === "offPeak" &&
+    rowHoliday.cny.input === 0.5 && rowHoliday.cny.cacheRead === 0.01 && rowHoliday.cny.output === 2,
+  JSON.stringify({ holiday: stateHoliday.now.holiday, mode: stateHoliday.now.mode, row: rowHoliday.cny }));
+const makeupAt = Date.parse("2026-10-10T15:00:00+08:00"); // 国庆调休上班的周六下午
+const stateMakeup = describePricing(readSnapshot({ force: true }), makeupAt);
+check("调休上班的周六（10-10 15:00）也是闲时价",
+  stateMakeup.now.makeupWorkday === true && stateMakeup.now.mode === "offPeak" &&
+    stateMakeup.now.rows["deepseek-flash"].cny.input === 0.5,
+  JSON.stringify({ makeup: stateMakeup.now.makeupWorkday, mode: stateMakeup.now.mode }));
+// 假期一过就恢复高峰，别把整月都算成闲时
+const afterHoliday = describePricing(readSnapshot({ force: true }), Date.parse("2026-10-08T15:00:00+08:00"));
+check("节后普通工作日（10-08 周四 15:00）仍是高峰价 1.5/0.03/6",
+  afterHoliday.now.mode === "peak" && afterHoliday.now.rows["deepseek-flash"].cny.input === 1.5,
+  JSON.stringify({ mode: afterHoliday.now.mode }));
+
 // 7) 删除后回退官方价
 check("删除自定义价成功", deleteEntry(up.entry.id).ok === true);
 const after = describePricing(readSnapshot({ force: true }), offPeakAt);
