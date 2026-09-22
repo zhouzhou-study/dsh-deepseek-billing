@@ -1,6 +1,6 @@
 {
   "name": "dsh-deepseek-billing",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "DSH Web GUI 计费插件：在会话标题栏显示当前对话 token、费用与 DeepSeek API 余额，支持可选的用户自定义价格。",
   "type": "module",
   "main": "lib/index.js",
